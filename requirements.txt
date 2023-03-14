@@ -1,0 +1,8 @@
+autopep8
+dataclasses
+dftt-timecode
+multipledispatch
+pybmd
+pycodestyle
+six
+toml
