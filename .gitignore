@@ -5,3 +5,4 @@
 /.venv311
 /.vscode
 /test_export
+utility/__pycache__
