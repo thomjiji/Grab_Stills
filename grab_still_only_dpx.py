@@ -1,6 +1,9 @@
 import os
 import re
 import time
+from os import listdir, path
+import os
+import re
 from pybmd import Bmd
 from pybmd.gallery_still_album import StillFormats
 from pybmd.toolkits import *
@@ -20,25 +23,28 @@ current_timeline=current_project.get_current_timeline()
 
 
 
-# if DID_REGEX_L.match(current_timeline.get_name()) is None:
-#     print('timeline name is not a valid DID!')
-#     exit()
-# else:
-#     DID=current_timeline.get_name()
-DID=current_timeline.get_name()
+if DID_REGEX_L.match(current_timeline.get_name()) is None:
+    
+    print('timeline name is not a valid DID!')
+    exit()
+else:
+    DID=DID_REGEX_L.findall(current_timeline.get_name())[0][0]
+
 path_generator=DTG_Path(DID,'/','Desktop')
 
-# TEMP_PATH=path_generator.get_still_temp_path()
-# RENDER_PATH=path_generator.get_still_path()
+TEMP_PATH=path_generator.get_still_temp_path()
+RENDER_PATH=path_generator.get_still_path()
+
+DPX_PATH=path.join(RENDER_PATH,"DPX")
 
 ##TEST PATH
-TEMP_PATH='/Volumes/SSD_Transfer_4T/802302_Still_Project/dpx_3_2'
-RENDER_PATH='/Volumes/SSD_Transfer_4T/802302_Still_Project/dpx_3_2'
+# TEMP_PATH='/Volumes/SSD_Transfer_4T/802302_Still_Project/dpx_3_2'
+# RENDER_PATH='/Volumes/SSD_Transfer_4T/802302_Still_Project/dpx_3_2'
 
 try:
-    os.makedirs(TEMP_PATH)
+    os.makedirs(DPX_PATH)
 except Exception as e:
-    print(f'{TEMP_PATH} exists!')
+    print(f'{DPX_PATH} exists!')
 
 try:
     os.makedirs(RENDER_PATH)
@@ -56,29 +62,29 @@ else:
 
 
 marker_list=current_timeline.get_markers()
-still_dict={}
+still_list=[]
 
 #grab stills for every marker
 for marker_frameid in marker_list:
     marker_timecode:DfttTimecode=timeline_start_timecode+marker_frameid
     current_timeline.set_current_timecode(marker_timecode.timecode_output())
-    timeline_item=current_timeline.get_current_video_item()
-    pro=timeline_item.get_media_pool_item().get_clip_property()
+    # timeline_item=current_timeline.get_current_video_item()
+    # pro=timeline_item.get_media_pool_item().get_clip_property()
     
-    #get frame count for the marker
-    clip_start_timecode=DfttTimecode(timeline_item.get_media_pool_item().get_clip_property('Start TC'),'auto',timeline_framerate)
-    clip_frame_count=marker_frameid-(timeline_item.get_start()-int(timeline_start_timecode.timecode_output('frame')))+int(clip_start_timecode.timecode_output('frame'))
+    # #get frame count for the marker
+    # clip_start_timecode=DfttTimecode(timeline_item.get_media_pool_item().get_clip_property('Start TC'),'auto',timeline_framerate)
+    # clip_frame_count=marker_frameid-(timeline_item.get_start()-int(timeline_start_timecode.timecode_output('frame')))+int(clip_start_timecode.timecode_output('frame'))
     
-    reel_name=timeline_item.get_media_pool_item().get_clip_property('Reel Name')
+    # reel_name=timeline_item.get_media_pool_item().get_clip_property('Reel Name')
     
-    reel_number=re.findall(r'(^[a-z0-9A-Z_]{6})',reel_name)[0]
-    file_name=timeline_item.get_media_pool_item().get_clip_property('File Name')
-    frames=timeline_item.get_media_pool_item().get_clip_property('Frames')
+    # reel_number=re.findall(r'(^[a-z0-9A-Z_]{6})',reel_name)[0]
+    # file_name=timeline_item.get_media_pool_item().get_clip_property('File Name')
+    # frames=timeline_item.get_media_pool_item().get_clip_property('Frames')
     
     
     still=current_timeline.grab_still()
-    still_dict.update({still:[reel_number,file_name,frames,f"{clip_frame_count:08d}"]})
-    time.sleep(0.5)
+    still_list.append(still)
+    time.sleep(0.1)
     
 
 current_gallery=current_project.get_gallery()
@@ -91,13 +97,8 @@ current_album=current_gallery.get_current_still_album()
 file_name_list = [os.path.splitext(f.name)[0] for f in os.scandir(
     TEMP_PATH) if f.is_file()]
 
-for still in still_dict:
-    still_property=still_dict[still]
-    _file_prefix="".join([str(data)+"_" for data in still_property])
-    if _file_prefix in file_name_list:
-        continue
-    else:
-        current_album.export_stills(gallery_stills= [still],folder_path= TEMP_PATH,file_prefix=_file_prefix,format=StillFormats.DPX)
+for still in still_list:
+    current_album.export_stills(gallery_stills= [still],folder_path= DPX_PATH,file_prefix=current_album.get_label(still),format=StillFormats.DPX)
     
         
     
@@ -105,8 +106,20 @@ for still in still_dict:
 stills=current_album.get_stills()
 current_album.delete_stills(stills)
 
-#rename TIFF still files
-still_renamer(TEMP_PATH)
+#remove DRX files
+remove_count=0
+for f in listdir(DPX_PATH):
+    if f == '.DS_Store':
+        continue
+    file_name=path.splitext(f)[0]
+    file_extention=path.splitext(f)[1]
+    #remove drx file
+    if file_extention == '.drx':
+        os.remove(path.join(DPX_PATH,f))
+        remove_count+=1
+        continue
+
+print(f'delete {remove_count} drx files')
 
 #import TIFF to resolve and transcode to Prores4444 single frame 
 
