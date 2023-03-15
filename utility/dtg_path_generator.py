@@ -32,9 +32,9 @@ class DTG_Path(object):
     
     def get_still_temp_path(self):
         if self.volume_type is 'RAID':
-            return path.join(self.volume_path,f'Still/{self.DID_8}/temp_tiff')
+            return path.join(self.volume_path,f'Still/{self.DID_8}/temp')
         if self.volume_type is 'Desktop':
-            return path.join(path.expanduser('~'),f'Desktop/Still/{self.DID_8}/temp_tiff')
+            return path.join(path.expanduser('~'),f'Desktop/Still/{self.DID_8}/temp')
 
     def get_still_path(self):
         if self.volume_type is 'RAID':
