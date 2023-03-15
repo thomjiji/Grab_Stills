@@ -70,7 +70,7 @@ for marker_frameid in marker_list:
     clip_frame_count=marker_frameid-(timeline_item.get_start()-int(timeline_start_timecode.timecode_output('frame')))+int(clip_start_timecode.timecode_output('frame'))
     
     reel_name=timeline_item.get_media_pool_item().get_clip_property('Reel Name')
-    reel_number=re.findall(r'(^[a-z0-9A-Z]{4})',reel_name)[0]
+    reel_number=re.findall(r'(^[a-z0-9A-Z_]{6})',reel_name)[0]
     file_name=timeline_item.get_media_pool_item().get_clip_property('File Name')
     frames=timeline_item.get_media_pool_item().get_clip_property('Frames')
     
