@@ -1,17 +1,12 @@
 import os
-import re
 import time
 from os import listdir, path
-import os
-import re
 from pybmd import Bmd
 from pybmd.gallery_still_album import StillFormats
 from pybmd.toolkits import *
 from dftt_timecode import DfttTimecode
 from utility.dtg_path_generator import DTG_Path
 
-from utility.still_renamer import still_renamer
-from utility.timeline_render import timeline_render
 from utility.pattern import *
 
 LOCAL_RESOLVE=Bmd()
@@ -55,15 +50,16 @@ timeline_framerate=24
 resolve_version=LOCAL_RESOLVE.get_version()
 
 #get timeline start timecode
-if resolve_version[0] is 18:
+if resolve_version[0] == 18:
     timeline_start_timecode=DfttTimecode(current_timeline.get_start_timecode(),'auto',timeline_framerate)
 else:
     timeline_start_timecode=DfttTimecode('01:00:00:00','auto',timeline_framerate)
 
 
 marker_list=current_timeline.get_markers()
-still_list=[]
-
+#still_list=[]
+still_dcit={}
+scene_set=set()
 #grab stills for every marker
 for marker_frameid in marker_list:
     marker_timecode:DfttTimecode=timeline_start_timecode+marker_frameid
@@ -80,10 +76,13 @@ for marker_frameid in marker_list:
     # reel_number=re.findall(r'(^[a-z0-9A-Z_]{6})',reel_name)[0]
     # file_name=timeline_item.get_media_pool_item().get_clip_property('File Name')
     # frames=timeline_item.get_media_pool_item().get_clip_property('Frames')
-    
-    
+    timeline_item=current_timeline.get_current_video_item()
+    scene=timeline_item.get_media_pool_item().get_metadata("Scene")
+    if scene not in scene_set:
+        scene_set.add(scene)
     still=current_timeline.grab_still()
-    still_list.append(still)
+    still_dcit.update({still:scene})
+    #still_list.append(still)
     time.sleep(0.1)
     
 
@@ -91,35 +90,53 @@ current_gallery=current_project.get_gallery()
 current_album=current_gallery.get_current_still_album()
 
 
-#export TIFF stills
 
-##scan tiff file path skip export if tiff file already exist
-file_name_list = [os.path.splitext(f.name)[0] for f in os.scandir(
-    TEMP_PATH) if f.is_file()]
 
-for still in still_list:
-    current_album.export_stills(gallery_stills= [still],folder_path= DPX_PATH,file_prefix=current_album.get_label(still),format=StillFormats.DPX)
+# #scan DPX file path skip export if tiff file already exist
+# file_name_list = [os.path.splitext(f.name)[0] for f in os.scandir(
+#     DPX_PATH) if f.is_file()]
+
+for scene in scene_set:
+    try:
+        dpx_scene_path=path.join(DPX_PATH,"SC"+scene)
+        os.makedirs(dpx_scene_path)
+    except Exception as e:
+        print(f'{dpx_scene_path} exists!')
+
+
+#export DPX stills
+for still in still_dcit:
+    dpx_scene_path=path.join(DPX_PATH,"SC"+still_dcit[still])
+    #print(f'{os.path.join(DPX_PATH,still_scene)}/{current_album.get_label(still)}')
+    current_album.export_stills(gallery_stills= [still],folder_path=dpx_scene_path ,file_prefix=current_album.get_label(still),format=StillFormats.DPX)
     
-        
+
     
 #clear album
 stills=current_album.get_stills()
 current_album.delete_stills(stills)
 
 #remove DRX files
-remove_count=0
-for f in listdir(DPX_PATH):
-    if f == '.DS_Store':
-        continue
-    file_name=path.splitext(f)[0]
-    file_extention=path.splitext(f)[1]
-    #remove drx file
-    if file_extention == '.drx':
-        os.remove(path.join(DPX_PATH,f))
-        remove_count+=1
-        continue
+def remove_drx(DPX_PATH):
+    remove_count=0
+    for f in listdir(DPX_PATH):
+        if f == '.DS_Store':
+            continue
+        file_name=path.splitext(f)[0]
+        file_extention=path.splitext(f)[1]
+        #remove drx file
+        if file_extention == '.drx':
+            os.remove(path.join(DPX_PATH,f))
+            remove_count+=1
+            continue
+    print(f'delete {remove_count} drx files at {DPX_PATH}')
+    
 
-print(f'delete {remove_count} drx files')
+dpx_scene_list=[f.name for f in os.scandir(DPX_PATH) if f.is_dir()]
+for scene_folder in dpx_scene_list:
+    remove_drx(path.join(DPX_PATH,scene_folder))
+
+
 
 #import TIFF to resolve and transcode to Prores4444 single frame 
 
