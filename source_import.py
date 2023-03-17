@@ -12,13 +12,13 @@ def source_import(DID:str):
     if DID_REGEX.match(DID) is None:
         print(f'Not a Valid DID: {DID}')
         exit()
-    dtg_path=DTG_Path(DID_8=DID,volume_name='RAID6_070201',volume_type='RAID')
+    dtg_path=DTG_Path(DID_8=DID,volume_name='RAID6_230201',volume_type='RAID')
 
     
     reel_list=[f for f in os.scandir(dtg_path.get_source_path()) if f.is_dir()]
     reel_clip_path_list=[Reel_Importer(f).get_source_clip_path() for f in reel_list]
     LOCAL_RESOLVE=Bmd()
-    LOCAL_FUSION=LOCAL_RESOLVE.fusion()
+
     
     project_manager=LOCAL_RESOLVE.get_project_manager()
     current_project=project_manager.get_current_project()
@@ -30,7 +30,7 @@ def source_import(DID:str):
     current_media_pool.import_media(reel_clip_path_list)
     
     
-    
+#source_import("DAY_004_20230317")
     
 
 if __name__ == "__main__":
