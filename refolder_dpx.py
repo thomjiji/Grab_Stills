@@ -1,0 +1,20 @@
+import os
+from utility.pattern import *
+
+DPX_PATH="/Volumes/SSD_Transfer_4T/802302_Still_Project/DAY_003_20230316/DPX"
+ALEXA_35_CLIP_REGEX=re.compile(r'[A-Z][A-Z_][0-9]{4}C[0-9]{3}_[0-9]{6}_[0-9]{6}_(?:a|p)[A-Z0-9]{4}')
+
+for f in os.scandir(DPX_PATH):
+    if f.name == '.DS_Store':
+        continue
+    file_name,file_ext=os.path.splitext(f.name)
+    
+    try:
+        dpx_file_folder=os.path.join(DPX_PATH,file_name)
+        os.mkdir(dpx_file_folder)
+    except Exception as e:
+        raise e
+    
+    new_file_name=ALEXA_35_CLIP_REGEX.match(file_name)[0]
+    new_file_full_name=new_file_name+file_ext
+    os.rename(f.path,os.path.join(dpx_file_folder,new_file_full_name))
