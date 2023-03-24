@@ -6,3 +6,5 @@ pybmd
 pycodestyle
 six
 toml
+pillow
+fpdf
