@@ -83,7 +83,7 @@ for marker_frameid in marker_list:
     still=current_timeline.grab_still()
     still_dcit.update({still:scene})
     #still_list.append(still)
-    time.sleep(0.1)
+    time.sleep(0.15)
     
 
 current_gallery=current_project.get_gallery()
@@ -95,7 +95,7 @@ current_album=current_gallery.get_current_still_album()
 # #scan DPX file path skip export if tiff file already exist
 # file_name_list = [os.path.splitext(f.name)[0] for f in os.scandir(
 #     DPX_PATH) if f.is_file()]
-
+#Create Scene folder
 for scene in scene_set:
     try:
         dpx_scene_path=path.join(DPX_PATH,"SC"+scene)

@@ -1,7 +1,7 @@
 import os
 from utility.pattern import *
 
-DPX_PATH="/Volumes/DTG_SSD_8TR0/802302_Still_Project/DAY_004_20230317/DPX"
+DPX_PATH="/Volumes/SSD_Transfer_4T/802302_Still_Project/DAY_005_20230318/DPX"
 ALEXA_35_CLIP_REGEX=re.compile(r'[A-Z][A-Z_][0-9]{4}C[0-9]{3}_[0-9]{6}_[0-9]{6}_(?:a|p)[A-Z0-9]{4}')
 
 def refolder_dpx(dpx_path):
