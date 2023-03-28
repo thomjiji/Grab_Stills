@@ -6,3 +6,4 @@
 /.vscode
 /test_export
 utility/__pycache__
+utility/.DS_Store

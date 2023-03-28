@@ -83,7 +83,7 @@ for marker_frameid in marker_list:
     still=current_timeline.grab_still()
     still_dcit.update({still:scene})
     #still_list.append(still)
-    time.sleep(0.15)
+    time.sleep(0.3)
     
 
 current_gallery=current_project.get_gallery()
