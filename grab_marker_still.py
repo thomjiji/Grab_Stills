@@ -4,12 +4,11 @@ import time
 import argparse
 from pybmd import Bmd
 from pybmd.gallery_still_album import StillFormats
-from pybmd.toolkits import *
+from pybmd.toolkits import get_timeline
 from dftt_timecode import DfttTimecode
 
 from utility.still_renamer import still_renamer
 from utility.timeline_render import timeline_render
-from utility.pattern import *
 
 
 def grab_still(render_path: str, temp_path: str):
@@ -38,19 +37,21 @@ def grab_still(render_path: str, temp_path: str):
     except Exception as e:
         print(f"{RENDER_PATH} exists!")
 
-    timeline_framerate = int(
-        current_timeline.get_setting("timelinePlaybackFrameRate")
-    )
+    timeline_framerate = int(current_timeline.get_setting("timelineFrameRate"))
     resolve_version = LOCAL_RESOLVE.get_version()
 
     # get timeline start timecode
-    if resolve_version[0] is 18:
+    if resolve_version[0] == 18:
         timeline_start_timecode = DfttTimecode(
-            current_timeline.get_start_timecode(), "auto", timeline_framerate
+            current_timeline.get_start_timecode(),
+            "auto",
+            timeline_framerate,
+            False,
+            True,
         )
     else:
         timeline_start_timecode = DfttTimecode(
-            "01:00:00:00", "auto", timeline_framerate
+            "01:00:00:00", "auto", timeline_framerate, False, True
         )
 
     marker_list = current_timeline.get_markers()
@@ -68,11 +69,13 @@ def grab_still(render_path: str, temp_path: str):
             timeline_item.get_media_pool_item().get_clip_property("Start TC"),
             "auto",
             timeline_framerate,
+            False,
+            True,
         )
         clip_frame_count = (
             marker_frameid
             - (
-                timeline_item.get_start()
+                timeline_item.get_start()  # Get clip start frame position on the timeline.
                 - int(timeline_start_timecode.timecode_output("frame"))
             )
             + int(clip_start_timecode.timecode_output("frame"))
@@ -81,7 +84,7 @@ def grab_still(render_path: str, temp_path: str):
         reel_name = timeline_item.get_media_pool_item().get_clip_property(
             "Reel Name"
         )
-        reel_number = re.findall(r"(^[a-z0-9A-Z]{4})", reel_name)[0]
+        reel_number = reel_name
         file_name = timeline_item.get_media_pool_item().get_clip_property(
             "File Name"
         )
@@ -98,7 +101,7 @@ def grab_still(render_path: str, temp_path: str):
 
     # export TIFF stills
 
-    ##scan tiff file path skip export if tiff file already exist
+    ## scan tiff file path skip export if tiff file already exist
     file_name_list = [
         os.path.splitext(f.name)[0]
         for f in os.scandir(TEMP_PATH)
@@ -125,9 +128,9 @@ def grab_still(render_path: str, temp_path: str):
     # rename TIFF still files
     still_renamer(TEMP_PATH)
 
-    # import TIFF to resolve and transcode to Prores4444 single frame
+    # import TIFF to resolve and transcode to ProRes4444 single frame
 
-    ##Clean RENDER_PATH
+    ## Clean RENDER_PATH
     exist_mov_list = [f.path for f in os.scandir(RENDER_PATH) if f.is_file()]
     for f in exist_mov_list:
         os.remove(f)
@@ -138,7 +141,8 @@ def grab_still(render_path: str, temp_path: str):
             current_media_pool.get_current_folder(), "TIFF"
         )
     )
-    ##delete temp timeline if exist
+
+    ## delete temp timeline if exist
     _timeline = get_timeline(current_project, f"TEMP_{DID}")
     if bool(_timeline):
         current_media_pool.delete_timelines([_timeline])
