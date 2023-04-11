@@ -5,7 +5,7 @@ from pybmd import Bmd
 from pybmd.gallery_still_album import StillFormats
 
 STILL_PROJECT_PATH = "/Users/wheheohu/Desktop/80220401"
-#STILL_PROJECT_PATH = "/Users/wheheohu/Desktop/Still_Export_Test"
+# STILL_PROJECT_PATH = "/Users/wheheohu/Desktop/Still_Export_Test"
 
 LOCAL_RESOLVE = Bmd()
 project_manager = LOCAL_RESOLVE.get_project_manager()
@@ -21,16 +21,20 @@ current_album = current_gallery.get_current_still_album()
 for still in stills:
     still_label = current_album.get_label(still)
     current_album.export_stills(
-        [still], folder_path=export_path, file_prefix=still_label, format=StillFormats.PNG)
+        [still],
+        folder_path=export_path,
+        file_prefix=still_label,
+        format=StillFormats.PNG,
+    )
 
 
 # for DEBUG
-#current_album.delete_stills(stills)
+# current_album.delete_stills(stills)
 
 # remove drx
 for f in os.listdir(export_path):
     file_name, file_extention = path.splitext(f)
-    if file_extention == '.drx':
+    if file_extention == ".drx":
         os.remove(path.join(export_path, f))
 
 

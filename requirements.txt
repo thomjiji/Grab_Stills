@@ -1,6 +1,6 @@
 autopep8
 dataclasses
-dftt-timecode
+dftt - timecode
 multipledispatch
 pybmd
 pycodestyle
