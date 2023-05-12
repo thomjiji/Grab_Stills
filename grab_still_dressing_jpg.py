@@ -1,25 +1,20 @@
 import os
-import re
 import time
 from os import listdir, path
 
-
-from pybmd import Bmd
-from pybmd.gallery_still_album import StillFormats
-from pybmd.toolkits import *
 from dftt_timecode import DfttTimecode
 from fpdf import FPDF
+from pybmd import Bmd
+from pybmd.gallery_still_album import StillFormats
 
 from utility.pattern import *
 from utility.watermark import watermark_to_jpg
 
 LOCAL_RESOLVE = Bmd()
 LOCAL_FUSION = LOCAL_RESOLVE.fusion()
-
 project_manager = LOCAL_RESOLVE.get_project_manager()
 current_project = project_manager.get_current_project()
 current_timeline = current_project.get_current_timeline()
-
 
 if DID_REGEX_L.match(current_timeline.get_name()) is None:
     print("timeline name is not a valid DID!")
@@ -27,9 +22,7 @@ if DID_REGEX_L.match(current_timeline.get_name()) is None:
 else:
     DID = DID_REGEX_L.findall(current_timeline.get_name())[0][0]
 
-
 DRESSING_STILL_PATH = "/Volumes/RAID6_230201/Output/toDressing"
-
 
 timeline_framerate = 24
 resolve_version = LOCAL_RESOLVE.get_version()
@@ -43,7 +36,6 @@ else:
     timeline_start_timecode = DfttTimecode(
         "01:00:00:00", "auto", timeline_framerate
     )
-
 
 marker_list = current_timeline.get_markers()
 still_dcit = {}
@@ -61,10 +53,8 @@ for marker_frameid in marker_list:
 
     time.sleep(0.15)
 
-
 current_gallery = current_project.get_gallery()
 current_album = current_gallery.get_current_still_album()
-
 
 # export JPG stills
 JPG_PATH = path.join(DRESSING_STILL_PATH, DID)
@@ -81,7 +71,6 @@ for still in still_dcit:
         file_prefix=still_label,
         format=StillFormats.JPG,
     )
-
 
 # clear album
 stills = current_album.get_stills()
@@ -105,7 +94,6 @@ def remove_drx(STILL_PATH):
 
 
 remove_drx(JPG_PATH)
-
 
 # add watermark to jpg and create pdf
 SCENE_FIND_REG = re.compile(r"(?:.*)_(SC.*)_[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}.*")

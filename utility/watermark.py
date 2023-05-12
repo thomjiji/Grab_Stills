@@ -4,7 +4,6 @@ from PIL import ImageFont
 import math
 import argparse
 
-
 def watermark_to_jpg(jpg_file_path: str, output_path: str, scene_text: str):
     # settings
     source = jpg_file_path  # source image file
@@ -43,7 +42,7 @@ def watermark_to_jpg(jpg_file_path: str, output_path: str, scene_text: str):
     # draw text watermark on new transparent image with center coordinates
     draw_text.text((center_x, center_y), text=text, fill=color, font=font)
     draw_scene.text(
-        [10, img.height - 70],
+        (10, img.height - 70),
         text=scene_text,
         fill=scene_color,
         font=scene_font,
