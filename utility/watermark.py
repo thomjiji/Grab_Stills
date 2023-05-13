@@ -4,6 +4,7 @@ from PIL import ImageFont
 import math
 import argparse
 
+
 def watermark_to_jpg(jpg_file_path: str, output_path: str, scene_text: str):
     # settings
     source = jpg_file_path  # source image file
