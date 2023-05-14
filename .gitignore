@@ -1,4 +1,4 @@
-/.DS_Store
+**/.DS_Store
 /.python-version
 /.test
 /.venv
@@ -8,3 +8,4 @@
 /.idea
 utility/__pycache__
 utility/.DS_Store
+*.ipynb
