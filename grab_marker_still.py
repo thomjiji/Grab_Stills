@@ -1,7 +1,7 @@
 import os
-import re
 import time
 import argparse
+
 from pybmd import Bmd
 from pybmd.gallery_still_album import StillFormats
 from pybmd.toolkits import get_timeline
