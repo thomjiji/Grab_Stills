@@ -38,18 +38,18 @@ else:
     )
 
 marker_list = current_timeline.get_markers()
-still_dcit = {}
+still_dict = {}
 scene_set = set()
 
-for marker_frameid in marker_list:
-    marker_timecode: DfttTimecode = timeline_start_timecode + marker_frameid
+for marker_frameId in marker_list:
+    marker_timecode: DfttTimecode = timeline_start_timecode + marker_frameId
     current_timeline.set_current_timecode(marker_timecode.timecode_output())
     timeline_item = current_timeline.get_current_video_item()
     scene = timeline_item.get_media_pool_item().get_metadata("Scene")
     if scene not in scene_set:
         scene_set.add(scene)
     still = current_timeline.grab_still()
-    still_dcit.update({still: scene})
+    still_dict.update({still: scene})
 
     time.sleep(0.15)
 
@@ -62,9 +62,9 @@ try:
     os.makedirs(JPG_PATH)
 except Exception as e:
     print(f"{JPG_PATH} exists!")
-for still in still_dcit:
+for still in still_dict:
     still_label = current_album.get_label(still)
-    still_label += f"_SC{still_dcit[still]}"
+    still_label += f"_SC{still_dict[still]}"
     current_album.export_stills(
         gallery_stills=[still],
         folder_path=JPG_PATH,
@@ -96,7 +96,7 @@ def remove_drx(STILL_PATH):
 remove_drx(JPG_PATH)
 
 # add watermark to jpg and create pdf
-SCENE_FIND_REG = re.compile(r"(?:.*)_(SC.*)_[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}.*")
+SCENE_FIND_REG = re.compile(r".*_(SC.*)_[0-9]+\.[0-9]+\.[0-9]+.*")
 
 pdf = FPDF("P", "pt", (2048, 858))
 
